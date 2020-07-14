@@ -18,56 +18,56 @@ namespace WebApi.EmployeeService.Controllers
         EmployeeContext context = new EmployeeContext();
         
         [HttpGet]
-        public IHttpActionResult Get() {
+        public HttpResponseMessage Get() {
             try {
                 var employees = context.Employees.ToList();
                 if (employees.Count > 0) {
-                    return Ok(new EmployeeListModel() {
+                    return Request.CreateResponse(HttpStatusCode.OK, new EmployeeListModel() {
                         Employees=employees
                     });
                 }
                 else {
-                    return Ok(new EmployeeListModel() {
-                        Employees = null
-                    });
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Kayıtlı Veri Bulunamadı");
                 }
             }
-            catch (Exception) {
-                return BadRequest("Bir Hata Meydana Geldi Lütfen Daha Sonra Tekrar Deneyiniz ");
+            catch (Exception ex) {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
             }
         }       
         
         [HttpGet]
-        public IHttpActionResult Get(int Id)
+        public HttpResponseMessage Get(int Id)
         {
             try {           
                 Employees employee = context.Employees.Where(x => x.ID == Id).FirstOrDefault();
-                if (employee == null) {
-                    return StatusCode(System.Net.HttpStatusCode.NotFound);
-                    //return Ok(new EmployeeModel());
+                if (employee !=null) {
+                    var entity=AutoMapper.Mapper.Map<EmployeeModel>(employee);
+                    return Request.CreateResponse(HttpStatusCode.OK,entity);
                 }
                 else {
-                    return Ok(AutoMapper.Mapper.Map<EmployeeModel>(employee));
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Böyle Bir Kişi Mevcut Değil");
                 }
             }
-            catch (Exception) {
-                return BadRequest("Bir Hata Meydana Geldi Lütfen Daha Sonra Tekrar Deneyiniz");
+            catch (Exception ex) {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest,ex);
             }
         }
         
         [HttpPost]
-        public IHttpActionResult Post([FromBody] EmployeeModel model) {
+        public HttpResponseMessage Post([FromBody] EmployeeModel model) {
             try {
+                Employees employees = AutoMapper.Mapper.Map<Employees>(model);
                 if (ModelState.IsValid) {
-                    Employees employees = AutoMapper.Mapper.Map<Employees>(model);
                     context.Employees.Add(employees);
                     context.SaveChanges();
                 }
-                return StatusCode(System.Net.HttpStatusCode.Created);
+                return Request.CreateResponse(HttpStatusCode.Created, employees);   
             }
-            catch (Exception) {
-                return BadRequest("Bir Hata Meydana Geldi Lütfen Daha Sonra Tekrar Deneyiniz");
+            catch (Exception ex) {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest,ex);
             }
         }
+
+
     }
 }
