@@ -60,8 +60,10 @@ namespace WebApi.EmployeeService.Controllers
                 if (ModelState.IsValid) {
                     context.Employees.Add(employees);
                     context.SaveChanges();
+
+                    return Request.CreateResponse(HttpStatusCode.Created, employees);
                 }
-                return Request.CreateResponse(HttpStatusCode.Created, employees);   
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Hata Meydana Geldi Daha Sonra Tekrar Deneyiniz");
             }
             catch (Exception ex) {
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest,ex);
