@@ -8,8 +8,10 @@ using System.Web.Http;
 using System.Web.Mvc;
 using WebApi.EmployeeService.Models;
 using WebApi.Entities.Models;
+using HttpDeleteAttribute = System.Web.Http.HttpDeleteAttribute;
 using HttpGetAttribute = System.Web.Http.HttpGetAttribute;
 using HttpPostAttribute = System.Web.Http.HttpPostAttribute;
+using HttpPutAttribute = System.Web.Http.HttpPutAttribute;
 
 namespace WebApi.EmployeeService.Controllers
 {
@@ -70,6 +72,46 @@ namespace WebApi.EmployeeService.Controllers
             }
         }
 
+        [HttpDelete]
+        public HttpResponseMessage Delete(int Id)
+        {
+            try {
+                var entity = context.Employees.FirstOrDefault(x=>x.ID==Id);
+                if (entity == null) {
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Böyle Bir Kişi Bulunamadı");
+                }
+                else {
+                    context.Employees.Remove(entity);
+                    context.SaveChanges();
+                    return Request.CreateResponse(HttpStatusCode.OK);
+                }
+            }
+            catch (Exception ex) {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest,ex);
+            }
+        }
 
+        [HttpPut]
+        public HttpResponseMessage Put([FromBody]EmployeeModel model)
+        {
+            try {
+                var entity = context.Employees.FirstOrDefault(x => x.ID == model.ID);
+
+                if (entity == null) {
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Böyle Bir Kişi Bulunamadı");
+                }
+                else {
+                    entity.FirstName = model.FirstName;
+                    entity.LastName = model.LastName;
+                    entity.Salary = model.Salary;
+                    entity.Gender = model.Gender;
+                    context.SaveChanges();
+                    return Request.CreateResponse(HttpStatusCode.OK, entity);
+                }
+            }
+            catch (Exception ex) {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }           
+        }
     }
 }
