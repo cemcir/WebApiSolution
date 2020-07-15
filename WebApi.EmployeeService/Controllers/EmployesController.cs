@@ -65,7 +65,7 @@ namespace WebApi.EmployeeService.Controllers
 
                     return Request.CreateResponse(HttpStatusCode.Created, employees);
                 }
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Hata Meydana Geldi Daha Sonra Tekrar Deneyiniz");
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest,"");
             }
             catch (Exception ex) {
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest,ex);
