@@ -20,7 +20,34 @@ namespace WebApi.EmployeeService.Controllers
         EmployeeContext context = new EmployeeContext();
         
         [HttpGet]
-        public HttpResponseMessage Get() {
+        public HttpResponseMessage GetByGender(string gender = "All")
+        {
+            var model = new EmployeeListModel();
+            string employeesGender = gender.ToLower();
+            List<Employees> employees;
+            try {
+                if (employeesGender == "all") {
+                    employees = context.Employees.ToList();
+                    if (employees.Count > 0) {
+                        return Request.CreateResponse(HttpStatusCode.OK, model.Employees=employees); 
+                    }
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Kayıtlı Veri Bulunamadı");
+                }
+                else {
+                    employees = context.Employees.Where(x => x.Gender.ToLower() == employeesGender).ToList();
+                    if (employees.Count>0) {
+                        return Request.CreateResponse(HttpStatusCode.OK,model.Employees=employees);
+                    }
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Gender için değer All ,Male veya Female olmalı");
+                }
+            }
+            catch (Exception ex) {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [HttpGet]
+        public HttpResponseMessage LoadAllEmployees() {
             try {
                 var employees = context.Employees.ToList();
                 if (employees.Count > 0) {
@@ -38,7 +65,7 @@ namespace WebApi.EmployeeService.Controllers
         }       
         
         [HttpGet]
-        public HttpResponseMessage Get(int Id)
+        public HttpResponseMessage LoadAllEmployeesById(int Id)
         {
             try {           
                 Employees employee = context.Employees.Where(x => x.ID == Id).FirstOrDefault();
@@ -56,7 +83,7 @@ namespace WebApi.EmployeeService.Controllers
         }
         
         [HttpPost]
-        public HttpResponseMessage Post([FromBody] EmployeeModel model) {
+        public HttpResponseMessage Post([FromBody]EmployeeModel model) {
             try {
                 Employees employees = AutoMapper.Mapper.Map<Employees>(model);
                 if (ModelState.IsValid) {
@@ -65,7 +92,9 @@ namespace WebApi.EmployeeService.Controllers
 
                     return Request.CreateResponse(HttpStatusCode.Created, employees);
                 }
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest,"");
+                else {
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest,"");
+                }
             }
             catch (Exception ex) {
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest,ex);
@@ -96,17 +125,21 @@ namespace WebApi.EmployeeService.Controllers
         {
             try {
                 var entity = context.Employees.FirstOrDefault(x => x.ID == model.ID);
-
-                if (entity == null) {
-                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Böyle Bir Kişi Bulunamadı");
+                if (ModelState.IsValid) {
+                    if (entity == null) {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Böyle Bir Kişi Bulunamadı");
+                    }
+                    else {
+                        entity.FirstName = model.FirstName;
+                        entity.LastName = model.LastName;
+                        entity.Salary = model.Salary;
+                        entity.Gender = model.Gender;
+                        context.SaveChanges();
+                        return Request.CreateResponse(HttpStatusCode.OK, entity);
+                    }
                 }
                 else {
-                    entity.FirstName = model.FirstName;
-                    entity.LastName = model.LastName;
-                    entity.Salary = model.Salary;
-                    entity.Gender = model.Gender;
-                    context.SaveChanges();
-                    return Request.CreateResponse(HttpStatusCode.OK, entity);
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest,"");
                 }
             }
             catch (Exception ex) {
