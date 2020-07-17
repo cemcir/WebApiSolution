@@ -8,10 +8,12 @@ using System.Web.Http;
 using System.Web.Mvc;
 using WebApi.EmployeeService.Models;
 using WebApi.Entities.Models;
+using ActionNameAttribute = System.Web.Http.ActionNameAttribute;
 using HttpDeleteAttribute = System.Web.Http.HttpDeleteAttribute;
 using HttpGetAttribute = System.Web.Http.HttpGetAttribute;
 using HttpPostAttribute = System.Web.Http.HttpPostAttribute;
 using HttpPutAttribute = System.Web.Http.HttpPutAttribute;
+using RouteAttribute = System.Web.Http.RouteAttribute;
 
 namespace WebApi.EmployeeService.Controllers
 {
@@ -45,7 +47,7 @@ namespace WebApi.EmployeeService.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
             }
         }
-
+        
         [HttpGet]
         public HttpResponseMessage LoadAllEmployees() {
             try {
@@ -121,10 +123,10 @@ namespace WebApi.EmployeeService.Controllers
         }
 
         [HttpPut]
-        public HttpResponseMessage Put([FromBody]EmployeeModel model)
+        public HttpResponseMessage Put([FromBody]int Id,[FromUri]EmployeeModel model)
         {
             try {
-                var entity = context.Employees.FirstOrDefault(x => x.ID == model.ID);
+                var entity = context.Employees.FirstOrDefault(x => x.ID == Id);
                 if (ModelState.IsValid) {
                     if (entity == null) {
                         return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Böyle Bir Kişi Bulunamadı");
