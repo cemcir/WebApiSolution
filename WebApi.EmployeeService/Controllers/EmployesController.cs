@@ -20,7 +20,7 @@ namespace WebApi.EmployeeService.Controllers
     public class EmployesController : ApiController
     {
         EmployeeContext context = new EmployeeContext();
-        
+        /*
         [HttpGet]
         public HttpResponseMessage GetByGender(string gender = "All")
         {
@@ -47,15 +47,13 @@ namespace WebApi.EmployeeService.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
             }
         }
-        
+        */
         [HttpGet]
         public HttpResponseMessage LoadAllEmployees() {
             try {
                 var employees = context.Employees.ToList();
                 if (employees.Count > 0) {
-                    return Request.CreateResponse(HttpStatusCode.OK, new EmployeeListModel() {
-                        Employees=employees
-                    });
+                    return Request.CreateResponse(HttpStatusCode.OK,employees);
                 }
                 else {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "Kayıtlı Veri Bulunamadı");

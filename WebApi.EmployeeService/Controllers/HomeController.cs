@@ -19,5 +19,10 @@ namespace WebApi.EmployeeService.Controllers
                 Employees=employees
             });
         }
+
+        public ActionResult GetEmployees()
+        {
+            return View();
+        }
     }
 }
